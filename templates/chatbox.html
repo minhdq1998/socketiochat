@@ -1,0 +1,196 @@
+<head>
+    <title>SocketIO Chatbox</title>
+</head>
+<body>
+    <div class="header">
+        <div class="left">SocketIO Chat box</div>
+        <input type="text" class="hidden" id="username" value="{{ username }}" >
+        <div class="right"><a href="#" id="anony-button">You are {{ username }}</a></div>
+    </div>
+    <div class="main-container">
+        <div class="content-container">
+            <div class="chat-container">
+                <div class="messages-container">
+                </div>
+                <div class="chat-box-container">
+                    <form action="" method="post">
+                        <input class="message-input" type="text">
+                        <input class="send-message-btn" type="submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.min.js"></script>
+<script>
+var socket = io.connect('http://localhost:5000')
+var username = $('#username').val()
+//broadcast a message
+socket.on( 'connect', function() {
+})
+
+var form = $('form').on('submit', function(e) {
+    e.preventDefault();
+    let message = $('input.message-input').val()
+    console.log(message)
+    socket.emit( 'messaging event', {
+        message: message
+    })
+    $('input.message-input').val('').focus()
+})
+
+//capture message
+socket.on( 'message response', function(message) {
+    let message_type = message.username == username ? 'your-messages' : 'other-messages'
+    $('.messages-container').append(`
+        <div class="${message_type}">
+            <div class="message-sender">${message.username}</div>
+            <div class="message-block">${message.message}</div>
+        </div>
+    `)
+})
+
+var anony_btn = $('#anony-button').hover(
+    function(e) {
+        let ele = $('#anony-button')
+        ele.html('You are Anonymous')
+        console.log(ele)
+    }, function () {
+        let ele = $('#anony-button')
+        ele.html(`You are ${username}`)
+        console.log(ele)
+    }
+)
+</script>
+
+<style>
+body {
+    font-family:'Courier New', Courier, monospace;
+}
+
+.hidden {
+    display:none
+}
+
+.header {
+    height: 76px;
+    position: fixed;
+    top:0px;
+    left: 0px;
+    width: 100%;
+    background-color: #ffffff;
+    border: #333333;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    display: flex;
+}
+
+.header > .left {
+    width: 50%;
+    padding: 25px 35px;
+    direction: ltr;
+    font-weight: bold;
+}
+
+.header > .right {
+    width: 50%;
+    padding: 20px 35px;
+    direction: rtl;
+}
+
+.header > .right > a {
+    display: inline-block;
+    border: 1px solid #3d3d3d;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    color: #3d3d3d;
+    transition: all 0.3s;
+}
+
+.header > .right > a:hover {
+    background-color: #3d3d3d;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.main-container {
+    padding-top: 76px;
+    min-height: calc(100vh-76px);
+    background-color: #ffffff;
+}
+
+.content-container {
+    padding-top: 30px;
+    width: 500px;
+}
+
+.messages-container {
+    min-height: 600px;
+    border: 1px solid #3d3d3d;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.message-sender {
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.message-block {
+    display: inline-block;
+    padding: 8px 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+}
+
+.other-messages {
+    direction: ltr;
+}
+
+.other-messages > .message-block {
+    background-color: #3d3d3d;
+    color: #ffffff;
+}
+
+.your-messages {
+    direction: rtl;
+}
+
+.your-messages > .message-block {
+    border: 1px solid #0079bf;
+    background-color: #0079bf;
+    color: #ffffff;
+}
+
+.chat-box-container > form {
+    margin-top:5px;
+    display: flex;
+}
+
+.chat-box-container > form > .message-input {
+    width: 70%;
+    margin-right: 5px;
+    height: 40px;
+    border: 1px solid #3d3d3d;
+    border-radius: 10px;
+}
+
+.chat-box-container > form > .send-message-btn {
+    width: 30%;
+    border: 1px solid #0079bf;
+    background-color: #0079bf;
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 25px;
+}
+
+.chat-box-container > form > .send-message-btn:hover {
+    background-color:gold;
+    border: 1px solid #3d3d3d;
+    color: #3d3d3d;
+    cursor: pointer;
+}
+
+</style>
